@@ -4,6 +4,8 @@ import time
 import requests
 from parsel import Selector
 
+from tech_news.database import create_news
+
 
 def fetch(url: str) -> str or None:
     """
@@ -72,9 +74,26 @@ def scrape_next_page_link(html_content: str) -> str:
 
 # Requisito 4
 def scrape_news(html_content):
+    """
+    Scrapes news from the given HTML content and returns a dictionary with
+    the scraped data.
+
+    Parameters:
+    - html_content (str): The HTML content from which to scrape news.
+
+    Returns:
+    - dict: A dictionary containing the scraped data with the following keys:
+        - url (str): The URL of the news article.
+        - title (str): The title of the news article.
+        - timestamp (str): The timestamp of the news article.
+        - writer (str): The writer of the news article.
+        - reading_time (int): The reading time of the news article in minutes.
+        - summary (str): The summary of the news article.
+        - category (str): The category of the news article.
+    """
     selector = Selector(html_content)
     url = selector.css("link[rel=canonical]::attr(href)").get()
-    title = selector.css(".entry-title::text").get().strip()
+    title = selector.css(".entry-title::text").get().strip()  # type: ignore
     timestamp = selector.css(".meta-date::text").re_first(r"\d{2}/\d{2}/\d{4}")
     writer = selector.css(".author a::text").get()
     reading_time = selector.css(".meta-reading-time::text").re_first(r"\d+")
@@ -86,7 +105,7 @@ def scrape_news(html_content):
         "title": title,
         "timestamp": timestamp,
         "writer": writer,
-        "reading_time": int(reading_time),
+        "reading_time": int(reading_time),  # type: ignore
         "summary": "".join(summary).strip(),
         "category": category,
     }
@@ -94,5 +113,10 @@ def scrape_news(html_content):
 
 # Requisito 5
 def get_tech_news(amount):
-    """Seu código deve vir aqui"""
-    raise NotImplementedError
+    url = fetch('https://blog.betrybe.com')
+    links = scrape_updates(url)
+    for link in links:
+        html_content = fetch(link)
+        news = scrape_news(html_content)
+        create_news(news)
+    return links
