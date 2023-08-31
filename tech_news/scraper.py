@@ -5,7 +5,7 @@ import requests
 from parsel import Selector
 
 
-def fetch(url):
+def fetch(url: str) -> str or None:
     """
     Fetches the content of a given URL.
 
@@ -23,13 +23,13 @@ def fetch(url):
         time.sleep(1)
         if response.status_code == 200:
             return response.text
-        return None
+        return None  # type: ignore
     except requests.exceptions.Timeout:
-        return None
+        return None  # type: ignore
 
 
 # Requisito 2
-def scrape_updates(html_content):
+def scrape_updates(html_content: str) -> list:
     """
     Scrape the updates from the given HTML content.
 
@@ -45,9 +45,29 @@ def scrape_updates(html_content):
 
 
 # Requisito 3
-def scrape_next_page_link(html_content):
-    """Seu código deve vir aqui"""
-    raise NotImplementedError
+def scrape_next_page_link(html_content: str) -> str:
+    """
+    Extracts the next page link from the HTML content.
+
+    Args:
+        html_content (str): The HTML content of the page.
+
+    Returns:
+        str: The next page link.
+
+    Raises:
+        None.
+
+    Examples:
+        >>> html_content = "
+            <html><body><a class='next' href='/page2'>Next</a></body></html>
+        "
+        >>> scrape_next_page_link(html_content)
+        '/page2'
+    """
+    selector = Selector(html_content)
+    next_page = selector.css(".nav-links a.next::attr(href)").get()
+    return next_page  # type: ignore
 
 
 # Requisito 4
