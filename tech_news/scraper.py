@@ -2,9 +2,20 @@
 import time
 
 import requests
+from parsel import Selector
 
 
 def fetch(url):
+    """
+    Fetches the content of a given URL.
+
+    Args:
+        url (str): The URL to fetch.
+
+    Returns:
+        str or None: The content of the URL if the request is successful,
+        None otherwise.
+    """
     try:
         response = requests.get(
             url, timeout=3, headers={"User-Agent": "Fake user-agent"}
@@ -19,8 +30,18 @@ def fetch(url):
 
 # Requisito 2
 def scrape_updates(html_content):
-    """Seu código deve vir aqui"""
-    raise NotImplementedError
+    """
+    Scrape the updates from the given HTML content.
+
+    Parameters:
+        html_content (str): The HTML content to scrape.
+
+    Returns:
+        list: A list of links scraped from the HTML content.
+    """
+    selector = Selector(html_content)
+    links = selector.css(".entry-title a::attr(href)").getall()
+    return links
 
 
 # Requisito 3
