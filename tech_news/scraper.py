@@ -113,6 +113,21 @@ def scrape_news(html_content):
 
 # Requisito 5
 def get_tech_news(amount):
+    """
+    Fetches the latest technology news from the specified URL and returns
+    a list of news articles.
+
+    Parameters:
+    - amount (int): The number of news articles to fetch.
+
+    Returns:
+    - news (list): A list of dictionaries representing the scraped news
+    articles.
+    Each dictionary contains the following keys:
+        - title (str): The title of the news article.
+        - url (str): The URL of the news article.
+        - published_date (str): The published date of the news article.
+    """
     url = 'https://blog.betrybe.com'
     links = []
     news = []

@@ -5,6 +5,14 @@ from tech_news.database import find_news
 
 
 def top_5_categories():
+    """
+    Return the top 5 categories based on the number of news articles in
+    each category.
+
+    Returns:
+        list: A list of the top 5 categories.
+
+    """
     categories = find_news()
     categories_list = [category["category"] for category in categories]
 
