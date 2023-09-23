@@ -5,7 +5,7 @@ setup(
     description="Projeto Tech News",
     install_requires=[
         "parsel==1.7.0",
-        "requests==2.24.0",
+        "requests==2.31.0",
         "pymongo==3.11.0",
         "python-decouple==3.3",
     ],
