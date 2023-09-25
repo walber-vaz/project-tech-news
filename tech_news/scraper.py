@@ -19,14 +19,14 @@ def fetch(url: str) -> str or None:
         None otherwise.
     """
     try:
-        response = requests.get(
+        with requests.get(
             url, timeout=3, headers={"User-Agent": "Fake user-agent"}
-        )
-        time.sleep(1)
-        if response.status_code == 200:
-            return response.text
-        return None  # type: ignore
-    except requests.exceptions.Timeout:
+        ) as response:
+            time.sleep(1)
+            if response.status_code == 200:
+                return response.text
+            return None  # type: ignore
+    except requests.exceptions.RequestException:
         return None  # type: ignore
 
 
@@ -92,23 +92,27 @@ def scrape_news(html_content):
         - category (str): The category of the news article.
     """
     selector = Selector(html_content)
-    url = selector.css("link[rel=canonical]::attr(href)").get()
-    title = selector.css(".entry-title::text").get().strip()  # type: ignore
-    timestamp = selector.css(".meta-date::text").re_first(r"\d{2}/\d{2}/\d{4}")
-    writer = selector.css(".author a::text").get()
-    reading_time = selector.css(".meta-reading-time::text").re_first(r"\d+")
-    summary = selector.css(".entry-content > p:first-of-type *::text").getall()
-    category = selector.css(".category-style .label::text").get()
+    data = {}
 
-    return {
-        "url": url,
-        "title": title,
-        "timestamp": timestamp,
-        "writer": writer,
-        "reading_time": int(reading_time),  # type: ignore
-        "summary": "".join(summary).strip(),
-        "category": category,
-    }
+    data["url"] = selector.css("link[rel=canonical]::attr(href)").get()
+    data["title"] = (
+        selector.css(".entry-title::text").get().strip()  # type: ignore
+    )
+    data["timestamp"] = selector.css(".meta-date::text").re_first(
+        r"\d{2}/\d{2}/\d{4}"
+    )
+    data["writer"] = selector.css(".author a::text").get()
+    data["reading_time"] = int(
+        selector.css(".meta-reading-time::text").re_first(
+            r"\d+"
+        )  # type: ignore
+    )
+    data["summary"] = "".join(
+        selector.css(".entry-content > p:first-of-type *::text").getall()
+    ).strip()
+    data["category"] = selector.css(".category-style .label::text").get()
+
+    return data
 
 
 # Requisito 5
@@ -129,6 +133,7 @@ def get_tech_news(amount):
         - published_date (str): The published date of the news article.
     """
     url = 'https://blog.betrybe.com'
+
     links = []
     news = []
 
@@ -139,8 +144,7 @@ def get_tech_news(amount):
 
     for link in links[:amount]:
         html = fetch(link)
-        scraped_news = scrape_news(html)
-        news.append(scraped_news)
+        news.append(scrape_news(html))
 
     create_news(news)
 
